@@ -5,7 +5,8 @@ const saveSettingsButton = document.getElementById('save-settings-button');
 const clearSettingsButton = document.getElementById('clear-settings-button');
 const settingsStatus = document.getElementById('settings-status');
 const apiKeySetup = document.getElementById('api-key-setup');
-const chatArea = document.getElementById('chat-area'); // これが新しいチャットログの親要素
+const chatArea = document.getElementById('chat-area'); // これがチャットログの親要素になりました
+// const chatLog = document.getElementById('chat-log'); // ★この行を削除またはコメントアウト★
 const userInput = document.getElementById('user-input');
 const sendButton = document.getElementById('send-button');
 const changeSettingsButton = document.getElementById('change-settings-button');
@@ -75,6 +76,7 @@ changeSettingsButton.addEventListener('click', () => {
 
 // メッセージをチャットログに追加する関数
 function appendMessage(sender, message) {
+    // まず、HTMLエスケープ処理を行う（セキュリティのため）
     const escapedMessage = message.replace(/&/g, '&amp;')
                                .replace(/</g, '&lt;')
                                .replace(/>/g, '&gt;')
@@ -83,6 +85,7 @@ function appendMessage(sender, message) {
 
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message');
+    // AIメッセージの改行を<br>タグに変換し、innerHTMLで設定
     messageDiv.innerHTML = escapedMessage.replace(/\n/g, '<br>');
 
     const wrapperDiv = document.createElement('div'); 
@@ -96,9 +99,7 @@ function appendMessage(sender, message) {
 
     wrapperDiv.appendChild(messageDiv);
     
-    // ここが変更点: chatLogではなくchatAreaにメッセージを追加
-    // chatAreaの最初の子要素として挿入することで、入力エリアより上に表示されるようにする
-    // ただし、毎回先頭に入れると表示順が逆になるので、insertBeforeでinput-areaの手前に追加する
+    // input-areaの要素を取得し、その手前にメッセージを挿入する
     const inputArea = chatArea.querySelector('.input-area');
     chatArea.insertBefore(wrapperDiv, inputArea);
 
@@ -106,7 +107,7 @@ function appendMessage(sender, message) {
     chatArea.scrollTop = chatArea.scrollHeight;
 }
 
-// ユーザーのメッセージ送信処理（以下、変更なし）
+// ユーザーのメッセージ送信処理
 sendButton.addEventListener('click', sendMessage);
 userInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
