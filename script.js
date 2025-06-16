@@ -5,8 +5,7 @@ const saveSettingsButton = document.getElementById('save-settings-button');
 const clearSettingsButton = document.getElementById('clear-settings-button');
 const settingsStatus = document.getElementById('settings-status');
 const apiKeySetup = document.getElementById('api-key-setup');
-const chatArea = document.getElementById('chat-area');
-const chatLog = document.getElementById('chat-log');
+const chatArea = document.getElementById('chat-area'); // これが新しいチャットログの親要素
 const userInput = document.getElementById('user-input');
 const sendButton = document.getElementById('send-button');
 const changeSettingsButton = document.getElementById('change-settings-button');
@@ -30,7 +29,7 @@ function loadSettings() {
         currentModelUrl = storedModelUrl;
         settingsStatus.textContent = 'Key & URL saved.';
         apiKeySetup.style.display = 'none';
-        chatArea.style.display = 'block';
+        chatArea.style.display = 'flex'; // #chat-areaをflexコンテナとして表示
     } else {
         settingsStatus.textContent = 'Enter Key & URL.';
         apiKeySetup.style.display = 'block';
@@ -76,7 +75,6 @@ changeSettingsButton.addEventListener('click', () => {
 
 // メッセージをチャットログに追加する関数
 function appendMessage(sender, message) {
-    // まず、HTMLエスケープ処理を行う（セキュリティのため）
     const escapedMessage = message.replace(/&/g, '&amp;')
                                .replace(/</g, '&lt;')
                                .replace(/>/g, '&gt;')
@@ -85,26 +83,30 @@ function appendMessage(sender, message) {
 
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message');
-    // AIメッセージの改行を<br>タグに変換し、innerHTMLで設定
-    // 今回はHTMLエスケープ後に、改行のみ<br>に変換
-    messageDiv.innerHTML = escapedMessage.replace(/\n/g, '<br>'); // 改行だけをHTMLタグに変換
+    messageDiv.innerHTML = escapedMessage.replace(/\n/g, '<br>');
 
-    const wrapperDiv = document.createElement('div'); // 各メッセージを包むラッパー
-    wrapperDiv.classList.add('message-wrapper'); // 新しいクラスを追加
+    const wrapperDiv = document.createElement('div'); 
+    wrapperDiv.classList.add('message-wrapper');
     
     if (sender === 'user') {
-        wrapperDiv.classList.add('user-message'); // ラッパーにクラスを付与
+        wrapperDiv.classList.add('user-message');
     } else {
-        wrapperDiv.classList.add('ai-message'); // ラッパーにクラスを付与
+        wrapperDiv.classList.add('ai-message');
     }
 
     wrapperDiv.appendChild(messageDiv);
-    chatLog.appendChild(wrapperDiv);
+    
+    // ここが変更点: chatLogではなくchatAreaにメッセージを追加
+    // chatAreaの最初の子要素として挿入することで、入力エリアより上に表示されるようにする
+    // ただし、毎回先頭に入れると表示順が逆になるので、insertBeforeでinput-areaの手前に追加する
+    const inputArea = chatArea.querySelector('.input-area');
+    chatArea.insertBefore(wrapperDiv, inputArea);
 
-    chatLog.scrollTop = chatLog.scrollHeight;
+    // スクロールを一番下へ（chatAreaがスクロール可能な要素になったため）
+    chatArea.scrollTop = chatArea.scrollHeight;
 }
 
-// ユーザーのメッセージ送信処理
+// ユーザーのメッセージ送信処理（以下、変更なし）
 sendButton.addEventListener('click', sendMessage);
 userInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
