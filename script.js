@@ -1,10 +1,7 @@
 // ==========================================================
 // ** 重要: 以下のAPIキーは、ユーザーが入力するキーです。
-// ** ここに直接Gemini APIキーをハードコードしないでください！
 // ==========================================================
 
-// Gemini APIのURL（Google AI Studioでモデルを選択して「APIを使用」で確認できます）
-// gemini-pro の場合: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent
 const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key='; // APIキーは後で追加
 
 // HTML要素の取得
@@ -31,11 +28,11 @@ function loadApiKey() {
     const storedKey = localStorage.getItem('geminiApiKey');
     if (storedKey) {
         currentApiKey = storedKey;
-        apiKeyStatus.textContent = 'APIキーが保存されています。';
+        apiKeyStatus.textContent = 'API exists';
         apiKeySetup.style.display = 'none'; // APIキー入力エリアを非表示に
         chatArea.style.display = 'block';    // チャットエリアを表示
     } else {
-        apiKeyStatus.textContent = 'APIキーが保存されていません。';
+        apiKeyStatus.textContent = 'No API';
         apiKeySetup.style.display = 'block'; // APIキー入力エリアを表示
         chatArea.style.display = 'none';     // チャットエリアを非表示
     }
@@ -47,9 +44,9 @@ saveApiKeyButton.addEventListener('click', () => {
         localStorage.setItem('geminiApiKey', key);
         apiKeyInput.value = ''; // 入力フィールドをクリア
         loadApiKey(); // 保存されたキーを再ロードし、UIを更新
-        alert('APIキーが保存されました。');
+        alert('API Saved');
     } else {
-        alert('APIキーを入力してください。');
+        alert('Input API');
     }
 });
 
@@ -57,7 +54,7 @@ clearApiKeyButton.addEventListener('click', () => {
     localStorage.removeItem('geminiApiKey');
     currentApiKey = null;
     loadApiKey(); // UIを更新
-    alert('APIキーがクリアされました。');
+    alert('API Cleared');
 });
 
 // === チャットロジック ===
@@ -93,7 +90,7 @@ async function sendMessage() {
     if (!message) return;
 
     if (!currentApiKey) {
-        alert('APIキーが保存されていません。先にAPIキーを保存してください。');
+        alert('Please save API');
         return;
     }
 
@@ -129,7 +126,7 @@ async function sendMessage() {
         if (aiResponse) {
             appendMessage('ai', aiResponse);
         } else {
-            appendMessage('ai', 'Geminiからの応答がありませんでした。');
+            appendMessage('ai', 'No content received from Gemini');
             console.warn('No content received from Gemini:', data);
         }
 
