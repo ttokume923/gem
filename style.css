@@ -70,13 +70,13 @@ h1 {
     color: #666;
 }
 
-/* チャットエリア (新しいチャットログの役割も兼ねる) */
+/* チャットエリア */
 #chat-area {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     background-color: #f5f5f5;
-    padding: 20px 25px; /* 左右と上下のpaddingを統一的に調整 */
+    padding: 20px 25px; /* ここは変わらず、左右25pxの余白 */
     overflow-y: auto;
     position: relative;
 }
@@ -92,71 +92,41 @@ h1 {
 .message {
     padding: 12px 18px;
     border-radius: 18px; 
-    /* ここを修正: max-widthを大きくします。または削除して100%利用 */
-    max-width: calc(100% - 40px); /* 左右の余白を考慮して調整（例：40pxは左右のpadding + α） */
-    /* あるいは、もっとシンプルに max-width: 95%; などでも可 */
+    /* ★★★ここを最重要確認★★★ */
+    /* Geminiのように横幅全体を使うには、max-widthを大きくします */
+    /* 例えば、95%や98%に設定するか、calc()で左右のpadding+αを引く */
+    /* #chat-areaのpaddingが左右25pxなので、calc(100% - (25px * 2) - わずかな余白) */
+    max-width: calc(100% - 50px); /* 左右のchat-areaのpadding分だけ引く */
+    /* あるいは、よりシンプルに max-width: 95%; や max-width: 98%; でも良い */
+    /* どの値が一番しっくりくるか試してみてください */
+    
     word-wrap: break-word; 
     line-height: 1.6;
-    box-sizing: border-box; 
+    box-sizing: border-box; /* paddingやborderがwidth/heightに含まれるように */
 }
 
-/* AIメッセージ内のMarkdown要素のスタイル */
-.ai-message .message p {
-    margin: 0 0 1em 0;
-}
-.ai-message .message p:last-child {
-    margin-bottom: 0;
-}
-
-.ai-message .message h1,
-.ai-message .message h2,
-.ai-message .message h3,
-.ai-message .message h4,
-.ai-message .message h5,
-.ai-message .message h6 {
-    margin-top: 1.5em;
-    margin-bottom: 0.8em;
-    line-height: 1.2;
-    font-weight: bold;
+/* AIメッセージ内のMarkdown要素のスタイル (前回の内容でOK) */
+.ai-message .message p { margin: 0 0 1em 0; }
+.ai-message .message p:last-child { margin-bottom: 0; }
+.ai-message .message h1, .ai-message .message h2, .ai-message .message h3, .ai-message .message h4, .ai-message .message h5, .ai-message .message h6 {
+    margin-top: 1.5em; margin-bottom: 0.8em; line-height: 1.2; font-weight: bold;
 }
 .ai-message .message h1 { font-size: 1.8em; }
 .ai-message .message h2 { font-size: 1.5em; }
 .ai-message .message h3 { font-size: 1.3em; }
-
-.ai-message .message ul,
-.ai-message .message ol {
-    margin: 1em 0 1em 20px;
-    padding: 0;
-}
-.ai-message .message li {
-    margin-bottom: 0.5em;
-}
-
+.ai-message .message ul, .ai-message .message ol { margin: 1em 0 1em 20px; padding: 0; }
+.ai-message .message li { margin-bottom: 0.5em; }
 .ai-message .message pre {
-    background-color: #e0e0e0;
-    padding: 10px;
-    border-radius: 5px;
-    overflow-x: auto;
-    margin: 1em 0;
+    background-color: #e0e0e0; padding: 10px; border-radius: 5px; overflow-x: auto; margin: 1em 0;
 }
-
 .ai-message .message code {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 0.9em;
-    background-color: rgba(0, 0, 0, 0.05);
-    padding: 2px 4px;
-    border-radius: 3px;
+    font-family: 'Courier New', Courier, monospace; font-size: 0.9em;
+    background-color: rgba(0, 0, 0, 0.05); padding: 2px 4px; border-radius: 3px;
 }
-
 .ai-message .message pre code {
-    background-color: transparent;
-    padding: 0;
-    border-radius: 0;
+    background-color: transparent; padding: 0; border-radius: 0;
 }
-
-.ai-message .message strong {
-    font-weight: bold;
-}
+.ai-message .message strong { font-weight: bold; }
 
 
 /* ユーザーメッセージのスタイル */
@@ -164,8 +134,8 @@ h1 {
     background-color: #e6f7ff; 
     margin-left: auto; 
     color: #333;
-    /* ユーザーメッセージも同様に幅を広げる */
-    max-width: calc(100% - 40px); /* 左右の余白を考慮 */
+    /* ★★★ここも最重要確認★★★ */
+    max-width: calc(100% - 50px); /* AIメッセージと同様に調整 */
 }
 
 /* AIメッセージのスタイル */
@@ -174,5 +144,6 @@ h1 {
     margin-right: auto; 
     color: #333;
     box-shadow: 0 1px 2px rgba(0,0,0,0.08); 
-    /* AIメッセージも同様に幅を広げる */
-    max-width: calc(100% - 40px); /* 左右の余白を考慮 */
+    /* ★★★ここも最重要確認★★★ */
+    max-width: calc(100% - 50px); /* AIメッセージと同様に調整 */
+}

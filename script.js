@@ -1,8 +1,3 @@
-// ==========================================================
-// ** 重要: 以下のAPIキーとモデルURLは、ユーザーが入力するものです。
-// ** ここに直接ハードコードしないでください！
-// ==========================================================
-
 // HTML要素の取得
 const apiKeyInput = document.getElementById('api-key-input');
 const modelUrlInput = document.getElementById('model-url-input');
@@ -11,6 +6,7 @@ const clearSettingsButton = document.getElementById('clear-settings-button');
 const settingsStatus = document.getElementById('settings-status');
 const apiKeySetup = document.getElementById('api-key-setup');
 const chatArea = document.getElementById('chat-area'); 
+// const chatLog = document.getElementById('chat-log'); // ★この行は削除されていること！★
 const userInput = document.getElementById('user-input');
 const sendButton = document.getElementById('send-button');
 const changeSettingsButton = document.getElementById('change-settings-button');
@@ -34,7 +30,7 @@ function loadSettings() {
         currentModelUrl = storedModelUrl;
         settingsStatus.textContent = 'Key & URL saved.';
         apiKeySetup.style.display = 'none';
-        chatArea.style.display = 'flex'; // #chat-areaをflexコンテナとして表示
+        chatArea.style.display = 'flex'; 
     } else {
         settingsStatus.textContent = 'Enter Key & URL.';
         apiKeySetup.style.display = 'block';
@@ -67,7 +63,6 @@ clearSettingsButton.addEventListener('click', () => {
     alert('Settings cleared.');
 });
 
-// --- 設定変更ボタンのクリックイベント ---
 changeSettingsButton.addEventListener('click', () => {
     apiKeySetup.style.display = 'block';
     chatArea.style.display = 'none';
@@ -76,24 +71,19 @@ changeSettingsButton.addEventListener('click', () => {
     settingsStatus.textContent = 'Change Key & URL.';
 });
 
-// --- チャットロジック ---
-
-// メッセージをチャットログに追加する関数
 function appendMessage(sender, message) {
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message');
     
     if (sender === 'user') {
-        // ユーザーメッセージはエスケープのみ（Markdown変換はしない）
         const escapedMessage = message.replace(/&/g, '&amp;')
                                    .replace(/</g, '&lt;')
                                    .replace(/>/g, '&gt;')
                                    .replace(/"/g, '&quot;')
                                    .replace(/'/g, '&#039;');
-        messageDiv.innerHTML = escapedMessage.replace(/\n/g, '<br>'); // 改行だけは反映
+        messageDiv.innerHTML = escapedMessage.replace(/\n/g, '<br>');
     } else {
-        // AIメッセージはmarked.jsを使ってMarkdownをHTMLに変換
-        // Marked.jsが自動的にXSS対策も行うため、別途エスケープは不要
+        // ★★★ここを最重要確認★★★ marked.parse()が使われているか
         messageDiv.innerHTML = marked.parse(message); 
     }
 
@@ -114,7 +104,6 @@ function appendMessage(sender, message) {
     chatArea.scrollTop = chatArea.scrollHeight;
 }
 
-// ユーザーのメッセージ送信処理
 sendButton.addEventListener('click', sendMessage);
 userInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
