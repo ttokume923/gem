@@ -1,3 +1,8 @@
+// ==========================================================
+// ** 重要: 以下のAPIキーとモデルURLは、ユーザーが入力するものです。
+// ** ここに直接ハードコードしないでください！
+// ==========================================================
+
 // HTML要素の取得
 const apiKeyInput = document.getElementById('api-key-input');
 const modelUrlInput = document.getElementById('model-url-input');
@@ -5,8 +10,7 @@ const saveSettingsButton = document.getElementById('save-settings-button');
 const clearSettingsButton = document.getElementById('clear-settings-button');
 const settingsStatus = document.getElementById('settings-status');
 const apiKeySetup = document.getElementById('api-key-setup');
-const chatArea = document.getElementById('chat-area'); // これがチャットログの親要素になりました
-// const chatLog = document.getElementById('chat-log'); // ★この行を削除またはコメントアウト★
+const chatArea = document.getElementById('chat-area'); 
 const userInput = document.getElementById('user-input');
 const sendButton = document.getElementById('send-button');
 const changeSettingsButton = document.getElementById('change-settings-button');
@@ -76,17 +80,22 @@ changeSettingsButton.addEventListener('click', () => {
 
 // メッセージをチャットログに追加する関数
 function appendMessage(sender, message) {
-    // まず、HTMLエスケープ処理を行う（セキュリティのため）
-    const escapedMessage = message.replace(/&/g, '&amp;')
-                               .replace(/</g, '&lt;')
-                               .replace(/>/g, '&gt;')
-                               .replace(/"/g, '&quot;')
-                               .replace(/'/g, '&#039;');
-
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message');
-    // AIメッセージの改行を<br>タグに変換し、innerHTMLで設定
-    messageDiv.innerHTML = escapedMessage.replace(/\n/g, '<br>');
+    
+    if (sender === 'user') {
+        // ユーザーメッセージはエスケープのみ（Markdown変換はしない）
+        const escapedMessage = message.replace(/&/g, '&amp;')
+                                   .replace(/</g, '&lt;')
+                                   .replace(/>/g, '&gt;')
+                                   .replace(/"/g, '&quot;')
+                                   .replace(/'/g, '&#039;');
+        messageDiv.innerHTML = escapedMessage.replace(/\n/g, '<br>'); // 改行だけは反映
+    } else {
+        // AIメッセージはmarked.jsを使ってMarkdownをHTMLに変換
+        // Marked.jsが自動的にXSS対策も行うため、別途エスケープは不要
+        messageDiv.innerHTML = marked.parse(message); 
+    }
 
     const wrapperDiv = document.createElement('div'); 
     wrapperDiv.classList.add('message-wrapper');
@@ -99,11 +108,9 @@ function appendMessage(sender, message) {
 
     wrapperDiv.appendChild(messageDiv);
     
-    // input-areaの要素を取得し、その手前にメッセージを挿入する
     const inputArea = chatArea.querySelector('.input-area');
     chatArea.insertBefore(wrapperDiv, inputArea);
 
-    // スクロールを一番下へ（chatAreaがスクロール可能な要素になったため）
     chatArea.scrollTop = chatArea.scrollHeight;
 }
 
