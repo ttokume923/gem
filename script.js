@@ -9,7 +9,7 @@ const chatArea = document.getElementById('chat-area');
 const chatLog = document.getElementById('chat-log');
 const userInput = document.getElementById('user-input');
 const sendButton = document.getElementById('send-button');
-const changeSettingsButton = document.getElementById('change-settings-button'); // 新しく追加
+const changeSettingsButton = document.getElementById('change-settings-button');
 
 let currentApiKey = null;
 let currentModelUrl = null;
@@ -18,6 +18,8 @@ let currentModelUrl = null;
 document.addEventListener('DOMContentLoaded', () => {
     loadSettings();
 });
+
+// --- 設定（APIキーとモデルURL）の保存・読み込み・クリア処理 ---
 
 function loadSettings() {
     const storedKey = localStorage.getItem('gApiKey');
@@ -63,18 +65,55 @@ clearSettingsButton.addEventListener('click', () => {
 
 // --- 設定変更ボタンのクリックイベント ---
 changeSettingsButton.addEventListener('click', () => {
-    // 設定入力エリアを表示
     apiKeySetup.style.display = 'block';
-    // チャットエリアを非表示
     chatArea.style.display = 'none';
-    // 現在のキーとURLをフォームに表示（編集しやすいように）
     apiKeyInput.value = currentApiKey || '';
     modelUrlInput.value = currentModelUrl || '';
-    settingsStatus.textContent = 'Change Key & URL.'; // ステータス表示も更新
+    settingsStatus.textContent = 'Change Key & URL.';
 });
 
-
 // --- チャットロジック ---
+
+/**
+ * Markdown形式のテキストをHTMLに変換する簡易関数
+ * 全てのMarkdownを完璧にカバーするものではありませんが、一般的な改行、太字、コードブロックに対応します。
+ */
+function convertMarkdownToHtml(markdownText) {
+    let htmlText = markdownText;
+
+    // コードブロック (```language ... ```)
+    htmlText = htmlText.replace(/```(.*?)?\n([\s\S]*?)\n```/g, (match, lang, code) => {
+        // HTMLエンティティに変換してから<pre><code>で囲む
+        const escapedCode = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return `<pre><code class="language-${lang || ''}">${escapedCode}</code></pre>`;
+    });
+
+    // 見出し (### ...) - h3を例に
+    htmlText = htmlText.replace(/^###\s*(.*)$/gm, '<h3>$1</h3>');
+    htmlText = htmlText.replace(/^##\s*(.*)$/gm, '<h2>$1</h2>');
+    htmlText = htmlText.replace(/^#\s*(.*)$/gm, '<h1>$1</h1>');
+
+    // 太字 (**)
+    htmlText = htmlText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // 改行を <br> に（ただし、既にHTMLタグ内の場合は除く）
+    // 段落を考慮し、連続する改行は<p>タグに、単一の改行は<br>に変換
+    // これが少し複雑なので、まずはシンプルな改行のみを対応
+    // Pタグを考慮した処理
+    htmlText = htmlText.split('\n\n').map(p => {
+        return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+    }).join('');
+    
+    // リスト (-, *, +)
+    htmlText = htmlText.replace(/^(-|\*|\+)\s+(.*)$/gm, '<li>$2</li>');
+    if (htmlText.includes('<li>')) {
+        htmlText = `<ul>${htmlText}</ul>`;
+        htmlText = htmlText.replace(/<\/ul><li>/g, '<li>'); // <li>がulの外に出てしまうのを修正
+    }
+    
+    return htmlText;
+}
+
 
 // メッセージをチャットログに追加する関数
 function appendMessage(sender, message) {
@@ -82,10 +121,12 @@ function appendMessage(sender, message) {
     messageDiv.classList.add('message');
     if (sender === 'user') {
         messageDiv.classList.add('user-message');
+        messageDiv.textContent = message; // ユーザーメッセージは純粋なテキストとして表示
     } else {
         messageDiv.classList.add('ai-message');
+        // AIメッセージはMarkdownをHTMLに変換して表示
+        messageDiv.innerHTML = convertMarkdownToHtml(message); 
     }
-    messageDiv.textContent = message;
 
     const wrapperDiv = document.createElement('div');
     wrapperDiv.appendChild(messageDiv);
