@@ -92,3 +92,18 @@ h1 {
     display: flex; /* flexboxを使ってメッセージを左右に配置 */
     width: 100%;
 }
+
+.settings-button {
+    width: 100%;
+    padding: 10px 15px;
+    background-color: #6c757d; /* グレー系の色 */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 15px; /* 上部に余白 */
+}
+
+.settings-button:hover {
+    background-color: #5a6268;
+}
