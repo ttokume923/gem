@@ -74,61 +74,30 @@ changeSettingsButton.addEventListener('click', () => {
 
 // --- チャットロジック ---
 
-/**
- * Markdown形式のテキストをHTMLに変換する簡易関数
- * 全てのMarkdownを完璧にカバーするものではありませんが、一般的な改行、太字、コードブロックに対応します。
- */
-function convertMarkdownToHtml(markdownText) {
-    let htmlText = markdownText;
-
-    // コードブロック (```language ... ```)
-    htmlText = htmlText.replace(/```(.*?)?\n([\s\S]*?)\n```/g, (match, lang, code) => {
-        // HTMLエンティティに変換してから<pre><code>で囲む
-        const escapedCode = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        return `<pre><code class="language-${lang || ''}">${escapedCode}</code></pre>`;
-    });
-
-    // 見出し (### ...) - h3を例に
-    htmlText = htmlText.replace(/^###\s*(.*)$/gm, '<h3>$1</h3>');
-    htmlText = htmlText.replace(/^##\s*(.*)$/gm, '<h2>$1</h2>');
-    htmlText = htmlText.replace(/^#\s*(.*)$/gm, '<h1>$1</h1>');
-
-    // 太字 (**)
-    htmlText = htmlText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-    // 改行を <br> に（ただし、既にHTMLタグ内の場合は除く）
-    // 段落を考慮し、連続する改行は<p>タグに、単一の改行は<br>に変換
-    // これが少し複雑なので、まずはシンプルな改行のみを対応
-    // Pタグを考慮した処理
-    htmlText = htmlText.split('\n\n').map(p => {
-        return `<p>${p.replace(/\n/g, '<br>')}</p>`;
-    }).join('');
-    
-    // リスト (-, *, +)
-    htmlText = htmlText.replace(/^(-|\*|\+)\s+(.*)$/gm, '<li>$2</li>');
-    if (htmlText.includes('<li>')) {
-        htmlText = `<ul>${htmlText}</ul>`;
-        htmlText = htmlText.replace(/<\/ul><li>/g, '<li>'); // <li>がulの外に出てしまうのを修正
-    }
-    
-    return htmlText;
-}
-
-
 // メッセージをチャットログに追加する関数
 function appendMessage(sender, message) {
+    // まず、HTMLエスケープ処理を行う（セキュリティのため）
+    const escapedMessage = message.replace(/&/g, '&amp;')
+                               .replace(/</g, '&lt;')
+                               .replace(/>/g, '&gt;')
+                               .replace(/"/g, '&quot;')
+                               .replace(/'/g, '&#039;');
+
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message');
+    // AIメッセージの改行を<br>タグに変換し、innerHTMLで設定
+    // 今回はHTMLエスケープ後に、改行のみ<br>に変換
+    messageDiv.innerHTML = escapedMessage.replace(/\n/g, '<br>'); // 改行だけをHTMLタグに変換
+
+    const wrapperDiv = document.createElement('div'); // 各メッセージを包むラッパー
+    wrapperDiv.classList.add('message-wrapper'); // 新しいクラスを追加
+    
     if (sender === 'user') {
-        messageDiv.classList.add('user-message');
-        messageDiv.textContent = message; // ユーザーメッセージは純粋なテキストとして表示
+        wrapperDiv.classList.add('user-message'); // ラッパーにクラスを付与
     } else {
-        messageDiv.classList.add('ai-message');
-        // AIメッセージはMarkdownをHTMLに変換して表示
-        messageDiv.innerHTML = convertMarkdownToHtml(message); 
+        wrapperDiv.classList.add('ai-message'); // ラッパーにクラスを付与
     }
 
-    const wrapperDiv = document.createElement('div');
     wrapperDiv.appendChild(messageDiv);
     chatLog.appendChild(wrapperDiv);
 

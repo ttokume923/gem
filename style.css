@@ -14,7 +14,10 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 600px;
+    max-width: 700px; /* 全体の幅を少し広げます */
+    height: 80vh; /* コンテナの最小高さを設定し、チャットログが広がりやすくします */
+    display: flex;
+    flex-direction: column; /* 要素を縦に並べる */
     box-sizing: border-box;
 }
 
@@ -24,10 +27,18 @@ h1 {
     margin-bottom: 20px;
 }
 
+#api-key-setup {
+    margin-bottom: 20px;
+}
+
+#api-key-setup p {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
 #api-key-setup input[type="password"],
-#api-key-setup input[type="text"], /* モデルURL入力も対象に追加 */
-#chat-area .input-area input[type="text"] {
-    width: calc(100% - 100px); 
+#api-key-setup input[type="text"] {
+    width: calc(100% - 10px); /* 左右のpaddingを考慮 */
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ddd;
@@ -35,65 +46,100 @@ h1 {
     box-sizing: border-box;
 }
 
-#api-key-setup button,
-#chat-area .input-area button {
+#api-key-setup button {
     padding: 10px 15px;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    margin-left: 5px;
+    margin-right: 10px; /* ボタン間のスペース */
 }
 
-#api-key-setup button:hover,
-#chat-area .input-area button:hover {
+#api-key-setup button:hover {
     background-color: #0056b3;
 }
 
-#settings-status { /* ID変更に合わせて修正 */
+#settings-status {
     margin-top: 10px;
     font-size: 0.9em;
     color: #666;
 }
 
-/* チャットログの高さとテキスト表示の調整 */
+#chat-area {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* 親要素の残りのスペースを埋める */
+    overflow: hidden; /* コンテナからはみ出る内容を隠す */
+}
+
+/* チャットログの表示エリアを改善 */
 #chat-log {
-    border: 1px solid #e0e0e0;
-    height: 400px; /* ここを大きくしました（例: 300px -> 400px） */
-    overflow-y: auto;
+    flex-grow: 1; /* チャットログがメッセージに応じて高さを自動調整 */
+    max-height: calc(100vh - 250px); /* 画面の高さに応じて最大高さを設定（上部の要素分を引く） */
+    overflow-y: auto; /* 必要に応じてスクロールバーを表示 */
     padding: 15px;
     margin-bottom: 15px;
+    border: 1px solid #e0e0e0;
     border-radius: 4px;
     background-color: #f9f9f9;
-    white-space: pre-wrap; /* これでテキストの改行と空白がそのまま表示されます */
+    display: flex; /* Flexboxを有効にしてメッセージを縦に並べる */
+    flex-direction: column;
+    gap: 10px; /* メッセージ間のスペース */
+}
+
+.message-wrapper { /* 新しく追加: メッセージを包むラッパー */
+    display: flex;
+    width: 100%;
 }
 
 .message {
-    margin-bottom: 10px;
-    padding: 8px 12px;
-    border-radius: 5px;
-    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 18px; /* 角を丸くして会話っぽく */
+    max-width: 75%; /* メッセージの最大幅 */
+    word-wrap: break-word; /* 長い単語の折り返し */
+    white-space: pre-wrap; /* 改行や空白を保持 */
 }
 
-.user-message {
-    background-color: #e6f7ff;
-    align-self: flex-end;
-    margin-left: auto;
-    text-align: right;
+.user-message .message { /* ユーザーメッセージのスタイル */
+    background-color: #e6f7ff; /* 明るい青 */
+    margin-left: auto; /* 右寄せ */
+    color: #333;
 }
 
-.ai-message {
-    background-color: #f0f0f0;
-    align-self: flex-start;
-    margin-right: auto;
-    text-align: left;
+.ai-message .message { /* AIメッセージのスタイル */
+    background-color: #f0f0f0; /* 薄いグレー */
+    margin-right: auto; /* 左寄せ */
+    color: #333;
 }
 
-/* チャットログ内のメッセージの表示を調整 */
-#chat-log div {
+.input-area {
     display: flex;
-    width: 100%;
+    margin-top: auto; /* 入力エリアを下部に固定 */
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+#user-input {
+    flex-grow: 1; /* 入力フィールドが残りのスペースを埋める */
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px; /* 角を丸く */
+    margin-right: 10px;
+}
+
+#send-button {
+    padding: 12px 25px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 20px; /* 角を丸く */
+    cursor: pointer;
+    white-space: nowrap; /* ボタン内のテキストが折り返されないように */
+}
+
+#send-button:hover {
+    background-color: #0056b3;
 }
 
 .settings-button {
@@ -109,36 +155,4 @@ h1 {
 
 .settings-button:hover {
     background-color: #5a6268;
-}
-
-/* Markdownの書式をある程度再現するためのスタイル */
-/* コードブロックのスタイル */
-.formatted-text pre {
-    background-color: #eee;
-    padding: 10px;
-    border-radius: 5px;
-    overflow-x: auto;
-}
-/* 太字のスタイル */
-.formatted-text strong {
-    font-weight: bold;
-}
-/* ヘッダーのような表現のスタイル */
-.formatted-text h1, .formatted-text h2, .formatted-text h3, .formatted-text h4, .formatted-text h5, .formatted-text h6 {
-    margin-top: 1em;
-    margin-bottom: 0.5em;
-    font-weight: bold;
-}
-.formatted-text h1 { font-size: 1.8em; }
-.formatted-text h2 { font-size: 1.5em; }
-.formatted-text h3 { font-size: 1.3em; }
-/* リストのスタイル */
-.formatted-text ul, .formatted-text ol {
-    margin-left: 20px;
-    padding: 0;
-}
-/* 段落のスタイル */
-.formatted-text p {
-    margin-bottom: 1em; /* 段落の下にスペースを確保 */
-    line-height: 1.5;   /* 行の高さを調整 */
 }
